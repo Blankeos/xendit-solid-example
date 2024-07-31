@@ -21,16 +21,13 @@ Features covered
   - [ ] One-time payment with extra units (Watercolor event tickets)
 - [ ] Discounts
 - [ ] Webhook (What happens after successful transaction)
-- [ ] Non-paddle related: Simple Auth + Database signifiying that the user has paid
+- [ ] Non-xendit related: Simple Auth + Database signifiying that the user has paid
 
 ## Quickstart
 
 > Assumes you have zero knowledge of Xendit.
 
-1. Sign up for a [**Xendit account**](https://dashboard.xendit.co/register).
-
-   - Your live account will be in `vendors.paddle.com`
-   - Your sandbox account will be in `vendors-sandbox.paddle.com`
+1. Sign up for a [**Xendit account**](https://dashboard.xendit.co/register). As **Sole Proprietorship** minimum to be able to accept credit/debit card payments.
 
 2. Generate a Secret API Key for development in Test mode. Go to **Settings > Developers > API Keys**.
 
@@ -38,26 +35,13 @@ Features covered
 
 3. Fill environment variables
 
-   - `cp .env.example .env`
-   - `PUBLIC_ENV__PADDLE_SELLER_ID` - From **Paddle > Developer Tools > Authentication**
-   - `PUBLIC_ENV__PADDLE_CLIENT_SIDE_TOKEN` - From **Paddle > Developer Tools > Authentication**
+   ```sh
+   $ cp .env.example .env
+   ```
 
-4. Create Products and Prices in Paddle
+   - `XENDIT_SECRET_API_KEY` - From **Settings > Developers > API Keys**
 
-   - Go to **Paddle > Catalog > Products**
-   - Make the following:
-     - Watercolor Brush (Basic) - $4 - One-time payment
-     - Watercolor Brush (Profesional Set) - $14 - One-time payment
-     - Watercolor Co Membership - $4 - Recurring Subscription per month
-   - After creating the products, get their **Price IDs**
-   - Go to `index/+Page.tsx` of this project and paste the **Price IDs** in the `products.id`.
-
-5. Set Default Payment Link
-
-   - Go to **Paddle > Checkout > Checkout settings > Default payment link** and set it to `http://localhost:3000` (or wherever your `openCheckout` will be called).
-   - This is like an "allowed domain" used for checkout. Otherwise, opening checkouts in that URL will fail.
-
-6. Install deps and run dev server
+4. Install deps and run dev server
    ```sh
    bun install
    bun dev
@@ -77,15 +61,15 @@ Features covered
 
 - My rough outline of how the payment flow works/is built:
 
-  - 1.  User selects a product/or chooses some products. (c.o. dev)
-  - 2.  Backend creates an invoice. (c.o. dev + xendit API)
+  - 1.  User selects a product/or chooses some products. (c.o. **dev**)
+  - 2.  Backend creates an invoice. (c.o. **dev** + xendit API)
   - 3.  Backend redirects the user to Xendit's Checkout URL. (c.o. xendit)
   - 4.  User inputs payment, then finishes payment. (c.o. xendit)
   - 5.  Xendit redirects user to success url. (c.o. xendit)
-  - 6.  If user failed payment, they will be redirected to failure url. (c.o. dev)
-  - 7.  Handle the callback via webhook POST (c.o. dev)
+  - 6.  If user failed payment, they will be redirected to failure url. (c.o. **dev**)
+  - 7.  Handle the callback via webhook POST (c.o. **dev**)
 
-- I that most payment integrations is literally just three steps:
+- I think that most payment integrations is literally just three steps:
   - Invoice - List of products to pay for before a checkout session.
   - Checkout Session - Handle transaction.
   - Webhook - A way for the dev to react to the transaction and serve the user appropriately.

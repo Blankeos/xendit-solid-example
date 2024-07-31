@@ -1,16 +1,15 @@
-import { usePaddleContext } from "@/store/paddle.store";
-import { CheckoutOpenLineItem } from "@paddle/paddle-js";
-
 export default function Page() {
-  const [items, setItems] = createStore<CheckoutOpenLineItem[]>([]);
+  const [items, setItems] = createStore<any[]>([]);
 
-  const products = [
-    { id: "pri_01j30gpbandt6x1hh1jf881wdy", name: "Watercolor Brush (Basic)", price: 4 },
-    { id: "pri_01j30gqm006t8qperkn0h3v1h7", name: "Watercolor Brush (Profesional Set)", price: 14 },
-    { id: "pri_01j30gx2zmeban9z2tr265k3d7", name: "Watercolor Co Membership", price: 4 },
-  ];
+  const [products] = createResource(async () => {
+    const response = await hc.products.$get();
 
-  const { openCheckout } = usePaddleContext();
+    const result = await response.json();
+
+    return result;
+  }, {});
+
+  // const { openCheckout } = usePaddleContext();
 
   function toggleAddItem(priceId: string, quantity: number) {
     setItems(
@@ -35,7 +34,7 @@ export default function Page() {
         <div class="h-20" />
 
         <div class="flex items-center justify-center gap-4">
-          <For each={products}>
+          <For each={products()?.allProducts}>
             {(product) => (
               <ProductCard
                 id={product.id}
@@ -54,10 +53,6 @@ export default function Page() {
           class="self-center border rounded px-3 py-1 bg-emerald-500 text-white border-emerald-300 transition active:scale-95"
           onClick={() => {
             const _items = unwrap(items);
-
-            openCheckout({
-              items: _items,
-            });
           }}
         >
           Checkout
@@ -77,11 +72,12 @@ export default function Page() {
   );
 }
 
+import { hc } from "@/lib/hc";
 // ===========================================================================
 // Subcomponents
 // ===========================================================================
 
-import { For, mergeProps, VoidProps } from "solid-js";
+import { createResource, For, mergeProps, VoidProps } from "solid-js";
 import { createStore, produce, unwrap } from "solid-js/store";
 
 type ProductCardProps = {
